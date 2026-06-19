@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from snowflake.snowpark.functions import col
 import requests  
 
@@ -7,11 +8,12 @@ st.write("Choose your own fruits")
 
 cnx = st.connection('snowflake')
 session = cnx.session()
-my_dataframe = session.table("smoothies.public.fruit_options").select(col("FRUIT_NAME"))
+my_dataframe = session.table("smoothies.public.fruit_options").select(col("FRUIT_NAME"), col("SEARCH_ON"))
+pd_df = my_dataframe.to_pandas()
 
 ingredients_list = st.multiselect(
     'Choose up to five:',
-    my_dataframe
+    pd_df['FRUIT_NAME'].tolist()
 )
 
 if ingredients_list:
@@ -19,8 +21,12 @@ if ingredients_list:
     
     for fruits_chosen in ingredients_list:
         ingredients_string += fruits_chosen + ' '
+        
+        search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruits_chosen, 'SEARCH_ON'].iloc[0]
+        st.write('The search value for ', fruits_chosen, ' is ', search_on, '.')
+        
         st.subheader(fruits_chosen + ' Nutrition Information')
-        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/" + fruits_chosen)  
+        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/" + search_on)
         sf_df = smoothiefroot_response.json()
         st.dataframe(data=sf_df, use_container_width=True)
 
@@ -36,4 +42,3 @@ if ingredients_list:
             st.success('Your smoothie has been ordered!')
         else:
             st.warning('Please enter your name before submitting!')
-
