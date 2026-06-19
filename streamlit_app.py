@@ -3,7 +3,9 @@ from snowflake.snowpark.functions import col
 import requests  
 
 smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")  
-st.text(smoothiefroot_response)
+#st.text(smoothiefroot_response)
+sf_df = smoothiefroot_response.json()
+st.dataframe(data=sf_df, use_container_width=True)
 
 st.title("Customize your smoothie 🥤")
 st.write("Choose your own fruits")
