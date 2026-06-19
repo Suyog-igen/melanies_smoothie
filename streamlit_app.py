@@ -30,11 +30,11 @@ if ingredients_list:
         sf_df = smoothiefroot_response.json()
         st.dataframe(data=sf_df, use_container_width=True)
 
-    name_on_order = st.text_input('Customer Name:')
+    name_on_order = st.text_input('Customer Name:').strip()
     st.write('The name for your order is:', name_on_order)
 
     my_insert_stmt = """INSERT INTO smoothies.public.orders (ingredients, name_on_order)
-                        VALUES ('""" + ingredients_string.strip() + """', '""" + name_on_order + """')"""
+                        VALUES ('""" + ingredients_string.strip() + """', '""" + name_on_order.strip() + """')"""
 
     if st.button('Submit Order'):
         if name_on_order:
